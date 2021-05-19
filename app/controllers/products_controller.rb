@@ -1,6 +1,9 @@
 class ProductsController < ApplicationController
     def index
         products = Product.all
+         if params[:search_term]
+            products = products.where("name ilike ?", "%#{params[:search_term]}%")
+         end
         render json: products
     end
     def show
@@ -12,10 +15,14 @@ class ProductsController < ApplicationController
             name:  params[:name],
             price:  params[:price],
             image_url: params[:image_url],
-            description:  params[:description]
+            description:  params[:description],
+            stock: params[:stock]
         )
-        product.save
-        render json: product
+        if product.save
+            render json: product
+        else
+            render json: {errors: product.errors.full_mesages}
+        end
     end
     def update
         product = Product.find(params[:id])
@@ -23,7 +30,12 @@ class ProductsController < ApplicationController
         product.price = params[:price] || product.price
         product.image_url = params[:image_url] || product.image_url
         product.description = params[:description] || product.description
-        render json: product
+        product.stock = params[:stock] || product.stock
+        if product.save
+            render json: product
+        else
+            render json: {errors: product.errors.full_messages}
+        end
     end
     def destroy
         product = Product.find(params[:id])
