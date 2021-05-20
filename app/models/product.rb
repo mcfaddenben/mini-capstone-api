@@ -6,6 +6,8 @@ class Product < ApplicationRecord
 
     belongs_to :supplier
 
+    has_many :images
+
     def supplier_name
         supplier.name
     end
